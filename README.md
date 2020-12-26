@@ -48,7 +48,7 @@ python extract_results.py
 -
 
 # Contributors
-* Javier Barbero Gómez (@javierbg)
-* Víctor Manuel Vargas (@victormvy)
-* Pedro Antonio Gutiérrez (@pagutierrez)
+* Javier Barbero Gómez ([@javierbg](https://github.com/javierbg))
+* Víctor Manuel Vargas ([@victormvy](https://github.com/victormvy))
+* Pedro Antonio Gutiérrez ([@pagutierrez](https://github.com/pagutierrez))
 * César Hervás-Martínez (chervas@uco.es)
