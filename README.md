@@ -1,5 +1,5 @@
 # An ordinal CNN approach for the assessment of neurological damage in Parkinson's disease patients"
-Code for the experimentation of the paper "An ordinal CNN approach for the assessment of neurological damage in Parkinson's disease patients"
+Code for the experimentation of the paper "An ordinal CNN approach for the assessment of neurological damage in Parkinson's disease patients" (pending review)
 
 # Installation
 Python 3.8 is required to run the experiments, along with the requirements specified in the `requirements.txt` file. To automatically install these requirements using `pip`, run the following command:
