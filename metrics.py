@@ -6,7 +6,7 @@ A compendium of evaluation metrics used in the experimentation
 import warnings
 import numpy as np
 
-from sklearn.metrics import confusion_matrix
+from sklearn.metrics import confusion_matrix, roc_auc_score
 
 import scipy.stats
 
@@ -38,6 +38,34 @@ def ms(y, ypred):
         ms = np.min(sensitivities)
 
         return ms
+
+
+# Geometric mean of the specificities (GMSp)
+def gmsp(y, ypred):
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        def class_specificity(cm, c):
+            predicted_sum = cm.sum(axis=0)
+            tnfp = predicted_sum - cm[c, :]
+            fp = tnfp[c]
+            tn = tnfp.sum() - fp
+            return tn / (tn + fp)
+        cm = confusion_matrix(y, ypred).astype(float)
+        return scipy.stats.gmean([class_specificity(cm, i) for i in range(cm.shape[0])])
+
+
+# Minimum specificity (MSp)
+def msp(y, ypred):
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        def class_specificity(cm, c):
+            predicted_sum = cm.sum(axis=0)
+            tnfp = predicted_sum - cm[c, :]
+            fp = tnfp[c]
+            tn = tnfp.sum() - fp
+            return tn / (tn + fp)
+        cm = confusion_matrix(y, ypred).astype(float)
+        return min(class_specificity(cm, i) for i in range(cm.shape[0]))
 
 
 # Mean Absolute Error (MAE)
@@ -128,14 +156,28 @@ def spearman(y, ypred):
             return num / div
 
 
+# Area under the ROC curve (AUC)
+def auc(y, probas):
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        
+        return roc_auc_score(y, probas, average='macro', multi_class='ovr')
+
+
 metric_list = [
     ccr,
-    amae,
     gm,
-    mae,
-    mmae,
     ms,
+    gmsp,
+    msp,
+    mae,
+    amae,
+    mmae,
     tkendall,
     wkappa,
     spearman,
+]
+
+score_metric_list = [
+    auc,
 ]

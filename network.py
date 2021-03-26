@@ -16,6 +16,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 import numpy as np
 from scipy.spatial.distance import cdist
+from scipy.special import softmax
 
 from typing import List, Tuple
 
@@ -35,6 +36,11 @@ class BrainNet(nn.Module):
         self.eval()
         x = self.convnet(x)
         return self.densenet.predict(x)
+    
+    def outputs(self, x):
+        self.eval()
+        x = self.convnet(x)
+        return self.densenet.outputs(x)
 
 
 class ConvNet(nn.Module):
@@ -81,9 +87,12 @@ class NominalDenseNet(nn.Module):
 
     def predict(self, x):
         self.eval()
-        outputs = self.forward(x).detach().cpu().numpy()
+        outputs = self.outputs(x)
         labels = outputs.argmax(axis=1)
         return labels
+    
+    def outputs(self, x):
+        return self.forward(x).detach().cpu().numpy()
 
 
 class NominalNet(BrainNet):
@@ -98,6 +107,11 @@ class NominalNet(BrainNet):
         x = self.convnet(x)
         x = self.densenet(x)
         return x
+    
+    def scores(self, x):
+        self.eval()
+        x = self.convnet(x)
+        return self.densenet.outputs(x)
 
 
 class OrdinalDenseNet(nn.Module):
@@ -123,11 +137,14 @@ class OrdinalDenseNet(nn.Module):
         xs = [drop(F.leaky_relu(hidden(x))) for hidden, drop in zip(self.dense_hidden, self.dense_hidden_dropout)]
         xs = [torch.sigmoid(output(xc))[:, 0] for output, xc in zip(self.dense_output, xs)]
         return xs
+    
+    def outputs(self, x):
+        x = self.forward(x)
+        return torch.cat([o.unsqueeze(dim=1) for o in x], dim=1).detach().cpu().numpy()
 
     def predict(self, x):
         self.eval()
-        x = self.forward(x)
-        outputs = torch.cat([o.unsqueeze(dim=1) for o in x], dim=1).detach().cpu().numpy()
+        outputs = self.outputs(x)
         distances = cdist(outputs, self.target_class, metric='euclidean')
         labels = distances.argmin(axis=1)
         return labels
@@ -145,6 +162,14 @@ class OrdinalNet(BrainNet):
         x = self.convnet(x)
         x = self.densenet(x)
         return x
+    
+    def scores(self, x):
+        self.eval()
+        x = self.convnet(x)
+        outputs = self.densenet.outputs(x)
+        distances = cdist(outputs, self.densenet.target_class, metric='euclidean')
+        probas = softmax(-distances, axis=1)
+        return probas
 
 
 def ordinal_distance_loss(n_classes, device):

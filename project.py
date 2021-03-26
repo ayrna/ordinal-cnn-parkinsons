@@ -248,29 +248,38 @@ def predictions(net: BrainNet, test_ds, batch_size=32):
         True labels
     pred_labels: np.ndarray
         Predicted labels
+    pred_probas: np.ndarray
+        Predicted class probabilities
     """
     net.eval()
     test_dl = tdata.DataLoader(test_ds, batch_size=batch_size, shuffle=False)
     with torch.no_grad():
         true_labels = list()
         pred_labels = list()
+        pred_probas = list()
         for batch in test_dl:
             inputs, tl = batch
             pl = net.predict(inputs)
             true_labels.append(tl.cpu())
             pred_labels.append(pl)
+            
+            pp = net.scores(inputs)
+            pred_probas.append(pp)
     true_labels = np.concatenate(true_labels)
     pred_labels = np.concatenate(pred_labels)
-    return true_labels, pred_labels
+    pred_probas = np.concatenate(pred_probas)
+    return true_labels, pred_labels, pred_probas
 
 
-def evaluation_metrics(ytrue, ypred):
+def evaluation_metrics(ytrue, ypred, probas):
     """
     Compute all the evaluation metrics into a dictionary.
     ytrue
         True labels
     ypred
         Predicted labels
+    probas
+        Predicted class probabilities
 
     Returns
     -------
@@ -280,6 +289,9 @@ def evaluation_metrics(ytrue, ypred):
     ms = dict()
     for m in metrics.metric_list:
         metric_value = m(ytrue, ypred)
+        ms[m.__name__] = metric_value
+    for m in metrics.score_metric_list:
+        metric_value = m(ytrue, probas)
         ms[m.__name__] = metric_value
     return ms
 
@@ -520,9 +532,9 @@ def train_combination(job):
 
         train_ds, val_ds, test_ds = load_data(job.sp, split_name, device, random_state)
         net = train_parameter_combination(train_ds, val_ds, job, split_name, device, random_state)
-        ytrue, ypred = predictions(net, test_ds)
+        ytrue, ypred, probas = predictions(net, test_ds)
         cm = confusion_matrix(ytrue, ypred)
-        em = evaluation_metrics(ytrue, ypred)
+        em = evaluation_metrics(ytrue, ypred, probas)
         eval_metrics.append(em)
 
         job.doc[f'confusion_matrix_{split_name}'] = cm.tolist()
