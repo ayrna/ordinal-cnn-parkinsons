@@ -45,7 +45,27 @@ python extract_results.py
 ```
 
 # Citation
--
+
+### BibTeX
+```bibtex
+@article{BARBEROGOMEZ2021115271,
+  title = {An ordinal CNN approach for the assessment of neurological damage in Parkinson’s disease patients},
+  journal = {Expert Systems with Applications},
+  volume = {182},
+  pages = {115271},
+  year = {2021},
+  issn = {0957-4174},
+  doi = {https://doi.org/10.1016/j.eswa.2021.115271},
+  url = {https://www.sciencedirect.com/science/article/pii/S0957417421007028},
+  author = {Javier Barbero-Gómez and Pedro-Antonio Gutiérrez and Víctor-Manuel Vargas and Juan-Antonio Vallejo-Casas and César Hervás-Martínez},
+  keywords = {Artificial neural networks, Ordinal classification, Data augmentation, Computer-aided diagnosis}
+}
+```
+
+### APA 7th edition
+```
+J. Barbero-Gómez, P.-A. Gutiérrez, V.-M. Vargas, J.-A. Vallejo-Casas, and C. Hervás-Martínez, “An ordinal CNN approach for the assessment of neurological damage in Parkinson’s disease patients,” Expert Systems with Applications, vol. 182, p. 115271, Nov. 2021, doi: 10.1016/j.eswa.2021.115271.
+```
 
 # Contributors
 * Javier Barbero Gómez ([@javierbg](https://github.com/javierbg))
